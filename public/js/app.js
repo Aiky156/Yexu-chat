@@ -287,6 +287,12 @@ async function initUserAuth() {
 
 // 初始化Socket连接
 function initSocketConnection() {
+  // 断开可能存在的之前的连接
+  if (socket) {
+    console.log('断开现有连接并创建新连接');
+    socket.disconnect();
+  }
+  
   // 连接到Socket.io服务器
   socket = io();
   
@@ -691,7 +697,12 @@ function initEmojiPicker() {
         searchDescription: '搜索结果',
         searchResultsLabel: '搜索结果',
         searchPlaceholder: '搜索表情...'
-      }
+      },
+      // 根据屏幕大小调整表情的大小
+      emojiSize: window.innerWidth < 360 ? '1.4em' : 
+                window.innerWidth < 480 ? '1.6em' : '1.8em',
+      // 根据设备调整类别选择器的大小
+      categoryButtonSize: window.innerWidth < 480 ? '1.2em' : '1.5em'
     });
     
     // 监听emoji选择事件
@@ -704,25 +715,80 @@ function initEmojiPicker() {
       messageInput.setSelectionRange(cursorPos + event.emoji.length, cursorPos + event.emoji.length);
       messageInput.focus();
       
-      // 选择后隐藏选择器
+      // 选择后立即隐藏选择器
       emojiPicker.classList.add('hidden');
     });
+    
+    // 移除之前的事件监听以避免重复
+    emojiBtn.removeEventListener('click', toggleEmojiPicker);
+    document.removeEventListener('click', hideEmojiPickerOnClickOutside);
+    
+    // 设置新的事件监听
+    emojiBtn.addEventListener('click', toggleEmojiPicker);
+    document.addEventListener('click', hideEmojiPickerOnClickOutside);
+    
+    // 监听窗口大小变化，适应表情选择器位置
+    window.addEventListener('resize', () => {
+      // 如果表情选择器是可见的，调整其位置
+      if (!emojiPicker.classList.contains('hidden')) {
+        // 延迟执行以等待布局更新
+        setTimeout(() => {
+          adjustEmojiPickerPosition();
+        }, 100);
+      }
+    });
+    
   } catch (error) {
     console.error('初始化Emoji选择器失败:', error);
   }
+}
+
+// 调整表情选择器位置
+function adjustEmojiPickerPosition() {
+  // 获取视口宽度
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
   
-  // 点击表情按钮显示/隐藏选择器
-  emojiBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // 阻止事件冒泡
-    emojiPicker.classList.toggle('hidden');
-  });
-  
-  // 点击其他地方关闭表情选择器
-  document.addEventListener('click', (e) => {
-    if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-      emojiPicker.classList.add('hidden');
+  // 移动设备上调整表情选择器的位置
+  if (windowWidth <= 768) {
+    // 根据不同的屏幕大小和方向调整
+    if (windowHeight < 480 && windowWidth > windowHeight) {
+      // 横屏模式
+      emojiPicker.style.maxHeight = '50vh';
+      emojiPicker.style.bottom = '50px';
+    } else if (windowWidth <= 360) {
+      // 超小屏幕
+      emojiPicker.style.maxHeight = '30vh';
+      emojiPicker.style.bottom = '55px';
+    } else if (windowWidth <= 480) {
+      // 小屏幕
+      emojiPicker.style.maxHeight = '35vh';
+      emojiPicker.style.bottom = '60px';
+    } else {
+      // 正常移动设备
+      emojiPicker.style.maxHeight = '250px';
+      emojiPicker.style.bottom = '80px';
     }
-  });
+  }
+}
+
+// 切换表情选择器显示/隐藏
+function toggleEmojiPicker(e) {
+  e.stopPropagation(); // 阻止事件冒泡
+  
+  // 如果当前是隐藏状态，则在显示前调整位置
+  if (emojiPicker.classList.contains('hidden')) {
+    adjustEmojiPickerPosition();
+  }
+  
+  emojiPicker.classList.toggle('hidden');
+}
+
+// 点击其他地方关闭表情选择器
+function hideEmojiPickerOnClickOutside(e) {
+  if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+    emojiPicker.classList.add('hidden');
+  }
 }
 
 // 初始化引用回复功能
@@ -783,9 +849,6 @@ function addMessageToUI(msg) {
     
     console.log('收到文件消息:', msg.file);
   }
-  
-  // 添加消息到聊天记录
-  chatHistory.push(msg);
   
   // 如果消息已被撤回，显示撤回提示
   if (msg.recalled) {
@@ -1286,6 +1349,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // 侧边栏切换
   toggleSidebarBtn.addEventListener('click', () => {
     sidebar.classList.toggle('active');
+  });
+  
+  // 点击非菜单区域关闭侧边栏
+  document.addEventListener('click', (e) => {
+    // 检查点击的元素是否在侧边栏内部或是侧边栏切换按钮
+    if (!sidebar.contains(e.target) && e.target !== toggleSidebarBtn && !toggleSidebarBtn.contains(e.target)) {
+      // 如果侧边栏是打开的，则关闭它
+      if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+      }
+    }
   });
   
   // 关闭模态框
