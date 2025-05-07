@@ -84,12 +84,10 @@ npm start
 
 ### 方式二：Docker部署
 
-```bash
-# 方法1：使用Docker Hub镜像
-docker pull aiky156/yexu-chat:latest
-docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads --name yexu-chat aiky156/yexu-chat:latest
+您可以使用Docker快速部署叶叙聊天室：
 
-# 方法2：本地构建镜像
+```bash
+# 本地构建镜像并运行
 git clone https://github.com/Aiky156/yexu-chat.git
 cd yexu-chat
 docker build -t yexu-chat .
@@ -98,17 +96,7 @@ docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads -
 
 访问应用：打开浏览器，访问 `http://localhost:3000`
 
-### Docker部署说明
-
-- 数据持久化：应用的数据（聊天记录和用户信息）和上传文件通过Docker卷进行持久化
-- 端口映射：默认将容器内的3000端口映射到主机的3000端口
-- 环境变量：可通过环境变量配置应用参数（例如：`-e PORT=8080`）
-
-| 环境变量 | 描述 | 默认值 |
-|----------|------|--------|
-| PORT | 应用监听端口 | 3000 |
-| NODE_ENV | 环境模式 | production |
-| MAX_UPLOAD_SIZE | 最大上传文件大小(MB) | 50 |
+> 注意：Docker镜像配置会在后续版本更新中提供更多信息。
 
 ## 📱 使用流程
 
