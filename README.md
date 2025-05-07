@@ -84,19 +84,19 @@ npm start
 
 ### 方式二：Docker部署
 
-您可以使用Docker快速部署叶叙聊天室：
+直接使用Docker Hub官方镜像快速部署（推荐）：
 
 ```bash
-# 本地构建镜像并运行
-git clone https://github.com/Aiky156/yexu-chat.git
-cd yexu-chat
-docker build -t yexu-chat .
-docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads --name yexu-chat yexu-chat
+# 拉取官方镜像并运行
+docker pull aiky156/yexu-chat:latest
+docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads --name yexu-chat aiky156/yexu-chat:latest
 ```
 
 访问应用：打开浏览器，访问 `http://localhost:3000`
 
-> 注意：Docker镜像配置会在后续版本更新中提供更多信息。
+> 提示：
+> - 默认端口映射是3000:3000，如需修改可使用 `-p 8080:3000` 将容器3000端口映射到主机的8080端口
+> - 生产环境建议使用Nginx反向代理，支持HTTPS访问增强安全性
 
 ## 📱 使用流程
 
