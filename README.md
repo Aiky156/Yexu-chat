@@ -21,6 +21,7 @@
 - **数据持久化**：聊天记录和用户信息本地存储
 - **轻量级架构**：无需数据库，使用JSON文件存储数据，系统资源占用少
 - **即插即用**：简单几步操作即可完成部署，无需复杂配置
+- **容器化部署**：支持Docker容器化部署，便于在各种环境快速启动
 
 ## 💪 项目优势
 
@@ -36,6 +37,7 @@
   - 自动创建必要目录：首次运行自动生成所需文件结构
   - 支持快速迁移：整个应用可在不同环境间轻松迁移
   - 低系统资源需求：适用于各种规格的服务器环境
+  - Docker支持：支持容器化部署，无需担心环境配置问题
 
 ## 🛠️ 技术栈
 
@@ -45,6 +47,7 @@
 - **文件处理**：Multer
 - **数据存储**：本地 JSON 文件
 - **其他工具**：UUID, dotenv
+- **容器化**：Docker
 
 ## 🚀 安装和运行
 
@@ -52,14 +55,15 @@
 
 - Node.js (v12.0.0 或更高版本)
 - npm (v6.0.0 或更高版本)
+- 或者 Docker (用于容器化部署)
 
-### 安装步骤
+### 方式一：传统部署
 
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/liaots.git
-cd liaots
+git clone https://github.com/Aiky156/yexu-chat.git
+cd yexu-chat
 ```
 
 2. 安装依赖
@@ -77,6 +81,34 @@ npm start
 4. 访问应用
 
 打开浏览器，访问 `http://localhost:3000`
+
+### 方式二：Docker部署
+
+```bash
+# 方法1：使用Docker Hub镜像
+docker pull aiky156/yexu-chat:latest
+docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads --name yexu-chat aiky156/yexu-chat:latest
+
+# 方法2：本地构建镜像
+git clone https://github.com/Aiky156/yexu-chat.git
+cd yexu-chat
+docker build -t yexu-chat .
+docker run -d -p 3000:3000 -v yexu-data:/app/data -v yexu-uploads:/app/uploads --name yexu-chat yexu-chat
+```
+
+访问应用：打开浏览器，访问 `http://localhost:3000`
+
+### Docker部署说明
+
+- 数据持久化：应用的数据（聊天记录和用户信息）和上传文件通过Docker卷进行持久化
+- 端口映射：默认将容器内的3000端口映射到主机的3000端口
+- 环境变量：可通过环境变量配置应用参数（例如：`-e PORT=8080`）
+
+| 环境变量 | 描述 | 默认值 |
+|----------|------|--------|
+| PORT | 应用监听端口 | 3000 |
+| NODE_ENV | 环境模式 | production |
+| MAX_UPLOAD_SIZE | 最大上传文件大小(MB) | 50 |
 
 ## 📱 使用流程
 
@@ -99,7 +131,7 @@ npm start
 ## 📁 项目结构
 
 ```
-liaots/
+yexu-chat/
 ├── data/               # 数据存储目录
 │   ├── chat_history.json  # 聊天历史记录
 │   └── users.json      # 用户数据

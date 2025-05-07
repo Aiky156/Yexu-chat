@@ -1,7 +1,7 @@
 {
   "name": "yexu-chat",
   "version": "1.0.0",
-  "description": "响应式聊天室应用，支持多媒体文件分享和在线预览",
+  "description": "叶叙聊天室 - 响应式聊天应用，支持多媒体文件分享和在线预览",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -18,5 +18,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "author": "Aiky156",
+  "license": "MIT",
+  "keywords": ["chat", "socket.io", "real-time", "multimedia", "nodejs"]
 }
