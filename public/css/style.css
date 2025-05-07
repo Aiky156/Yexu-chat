@@ -136,7 +136,7 @@ html, body {
     height: 100%;
     width: 270px;
     margin-right: 0;
-    border-radius: 0 20px 20px 0;
+  border-radius: 0 20px 20px 0;
     transition: left 0.3s ease;
     z-index: 1000;
   }
@@ -1384,8 +1384,13 @@ html, body {
     max-height: 150px;
   }
   
+  /* 改进输入区域，使用弹性布局适应不同视口高度 */
+  .app-container {
+    padding-bottom: 80px; /* 为固定定位的输入框预留空间 */
+  }
+  
   .input-area {
-    padding: 12px;
+    padding: 10px;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -1393,30 +1398,38 @@ html, body {
     background-color: var(--paper-color);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     z-index: 50;
+    display: flex;
+    flex-direction: column;
+    max-height: 40vh; /* 最大高度不超过视口的40% */
   }
   
   .chat-container {
-    padding-bottom: 90px;
+    padding-bottom: 10px;
+    margin-bottom: 70px; /* 确保不被输入框遮挡 */
   }
   
   #message-input {
     padding: 8px 12px;
     font-size: var(--font-size-sm);
-    max-height: 100px;
+    max-height: 80px; /* 限制高度 */
     overflow-y: auto;
+    line-height: 1.4;
   }
   
   #send-btn {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
   }
   
   .message-input-container {
     padding: 3px;
     display: flex;
     align-items: center;
+    min-height: 44px; /* 保证按钮可点击尺寸 */
   }
   
+  /* 恢复其他移动端样式 */
   .auth-tab {
     font-size: var(--font-size-sm);
     padding: 10px 5px;
@@ -1454,6 +1467,18 @@ html, body {
   
   .auth-form {
     padding-bottom: 20px;
+  }
+  
+  /* 增强浏览器兼容性 */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS设备特有的样式 */
+    .input-area {
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0));
+    }
+    
+    .chat-container {
+      margin-bottom: calc(70px + env(safe-area-inset-bottom, 0));
+    }
   }
 }
 

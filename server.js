@@ -386,9 +386,12 @@ io.on('connection', (socket) => {
   // 辅助函数：获取在线用户列表
   function getUsersList() {
     const onlineUsersList = [];
+    const uniqueUsers = new Set(); // 用于去重
+    
     for (const userId of onlineUsers) {
       const user = users.find(u => u.id === userId);
-      if (user) {
+      if (user && !uniqueUsers.has(user.id)) {
+        uniqueUsers.add(user.id);
         onlineUsersList.push({
           id: user.id,
           username: user.username,
@@ -396,6 +399,14 @@ io.on('connection', (socket) => {
         });
       }
     }
+    
+    // 确保在线用户数量与返回列表数量一致
+    if (onlineUsers.size !== onlineUsersList.length) {
+      console.log(`实际在线用户数量(${onlineUsers.size})与列表数量(${onlineUsersList.length})不一致，已修正`);
+      // 清理onlineUsers集合，确保只包含有效用户
+      onlineUsers = new Set(uniqueUsers);
+    }
+    
     return onlineUsersList;
   }
   
