@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "e3076379-4998-4231-bfe7-996d4da73e83",
+    "username": "him",
+    "password": "123456",
+    "avatar": "https://images.xxapi.cn/images/head/7876542315.jpg",
+    "avatarId": null,
+    "createdAt": 1746619338272
+  },
+  {
+    "id": "8051eb8a-aca9-4347-ab06-4a550e7d5575",
+    "username": "kim",
+    "password": "123456",
+    "avatar": "https://images.xxapi.cn/images/head/0171192378.jpg",
+    "avatarId": null,
+    "createdAt": 1746619544527
+  }
+]
