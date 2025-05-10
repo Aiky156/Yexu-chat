@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#5b9bd5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <title>聊天室</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- 动画相关库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- 添加Picmo Emoji选择器库 -->
+  <script src="https://cdn.jsdelivr.net/npm/picmo@latest/dist/umd/index.js"></script>
+  <style>
+    /* 自定义Picmo主题变量 */
+    :root {
+      --picmo-font-family: 'Noto Sans SC', -apple-system, sans-serif;
+      --picmo-font-size: 14px;
+      --picmo-border-radius: 8px;
+      --picmo-category-font-size: 13px;
+      --picmo-category-icon-size: 18px;
+      --picmo-offset-font-size: 13px;
+      --picmo-search-height: 36px;
+      --picmo-emoji-size: 1.8em;
+      --picmo-header-padding: 12px;
+      --picmo-category-emoji-gap: 0.7em;
+      --picmo-padding: 10px;
+    }
+    
+    /* 粒子背景容器 */
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* 气泡背景效果 */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(to right, rgba(255, 159, 182, 0.1), rgba(91, 155, 213, 0.05));
+      animation: float 8s ease-in-out infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* 装饰元素容器 */
+    .decoration-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    /* 装饰点 */
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(45deg, rgba(255, 159, 182, 0.2), rgba(91, 155, 213, 0.1));
+      filter: blur(5px);
+      transform-origin: center;
+      opacity: 0.3;
+      z-index: 0;
+    }
+    
+    /* 波浪线 */
+    .wave {
+      position: absolute;
+      width: 100%;
+      height: 120px;
+      background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".1" fill="%23ff9fb6"/></svg>');
+      background-size: cover;
+      opacity: 0.05;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- 粒子背景 -->
+  <div id="particles-js"></div>
+  
+  <!-- 装饰性气泡 -->
+  <div class="bubbles-container"></div>
+  
+  <!-- 装饰元素 -->
+  <div class="decoration-container">
+    <div class="wave" style="bottom: 0; animation: wave-animation 20s linear infinite;"></div>
+    <div class="wave" style="bottom: 50px; animation: wave-animation 15s linear infinite reverse; opacity: 0.03;"></div>
+  </div>
+  
+  <div class="app-container">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="user-profile">
+        <div class="avatar-container">
+          <img id="user-avatar" src="" alt="用户头像" class="user-avatar">
+        </div>
+        <div class="user-info">
+          <h3 id="username">未登录</h3>
+          <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
+        </div>
+      </div>
+      <div class="sidebar-content">
+        <div class="app-info">
+          <h2>叶叙</h2>
+          <p>聊天室 - 实时交流平台</p>
+        </div>
+        <div class="online-users">
+          <h3>在线用户</h3>
+          <div class="online-avatars-grid" id="online-avatars">
+            <!-- 在线用户头像网格将通过JavaScript动态生成 -->
+          </div>
+          <ul id="users-list">
+            <!-- 用户列表将通过JavaScript动态生成 -->
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 聊天头部 -->
+      <header class="chat-header">
+        <button id="toggle-sidebar" class="toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>聊天室</h1>
+      </header>
+
+      <!-- 聊天消息区域 -->
+      <div class="chat-container">
+        <div id="messages" class="messages"></div>
+      </div>
+
+      <!-- 输入区域 -->
+      <div class="input-area">
+        <!-- 引用回复预览 -->
+        <div id="reply-preview" class="reply-preview hidden">
+          <div class="reply-content"></div>
+          <button id="cancel-reply" class="cancel-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="message-input-container">
+          <button id="emoji-btn" class="emoji-btn">
+            <i class="far fa-smile"></i>
+          </button>
+          <button id="file-upload-btn" class="file-btn">
+            <i class="fas fa-paperclip"></i>
+          </button>
+          <input type="file" id="file-input" hidden>
+          <div id="emoji-picker" class="emoji-picker hidden"></div>
+          <textarea id="message-input" placeholder="发送消息..." autocomplete="off" rows="1"></textarea>
+          <button id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        <div id="file-preview" class="file-preview hidden">
+          <div id="preview-content"></div>
+          <button id="remove-file" class="remove-file-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 媒体预览模态框 -->
+    <div id="media-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="modal-content-container"></div>
+      </div>
+    </div>
+
+    <!-- 用户认证模态框 -->
+    <div id="user-setup-modal" class="modal hidden">
+      <div class="modal-content user-setup-content">
+        <h2>叶叙 - 聊天室</h2>
+        <p>欢迎使用</p>
+        
+        <!-- 登录/注册切换标签 -->
+        <div class="auth-tabs">
+          <button id="login-tab" class="auth-tab active">登录</button>
+          <button id="register-tab" class="auth-tab">注册</button>
+        </div>
+        
+        <!-- 登录表单 -->
+        <div id="login-form" class="auth-form">
+          <form action="javascript:void(0);" id="login-form-element" autocomplete="off" novalidate>
+          <div class="form-group">
+            <label for="login-username">用户名</label>
+              <input type="text" id="login-username" placeholder="请输入用户名" maxlength="20" autocapitalize="off">
+          </div>
+          <div class="form-group">
+            <label for="login-password">密码</label>
+            <input type="password" id="login-password" placeholder="请输入密码">
+          </div>
+          <div class="form-group remember-me">
+            <input type="checkbox" id="remember-me">
+            <label for="remember-me">记住我</label>
+          </div>
+            <button type="submit" id="login-btn" class="btn primary-btn">登 录</button>
+          <p id="login-error" class="error-message hidden"></p>
+          </form>
+        </div>
+        
+        <!-- 注册表单 -->
+        <div id="register-form" class="auth-form hidden">
+          <form action="javascript:void(0);" id="register-form-element" autocomplete="off" novalidate>
+          <div class="avatar-selection">
+              <div class="current-avatar" title="点击更换头像">
+              <img id="selected-avatar" src="" alt="选择的头像">
+            </div>
+              <button type="button" id="change-avatar" class="btn"><i class="fas fa-sync-alt"></i> 更换头像</button>
+          </div>
+          <div class="form-group">
+            <label for="register-username">用户名</label>
+              <input type="text" id="register-username" placeholder="请输入用户名" maxlength="20" autocapitalize="off">
+          </div>
+          <div class="form-group">
+            <label for="register-password">密码</label>
+            <input type="password" id="register-password" placeholder="请输入密码">
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">确认密码</label>
+            <input type="password" id="confirm-password" placeholder="请再次输入密码">
+          </div>
+            <button type="submit" id="register-btn" class="btn primary-btn">注 册</button>
+          <p id="register-error" class="error-message hidden"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <!-- 动画初始化 -->
+  <script>
+    // 页面加载完成后初始化粒子效果
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化粒子
+      particlesJS('particles-js', {
+        "particles": {
+          "number": {
+            "value": 15,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": ["#ff9fb6", "#5b9bd5", "#75c6ef", "#ffccd5"]
+          },
+          "shape": {
+            "type": "circle",
+            "stroke": {
+              "width": 0,
+              "color": "#000000"
+            }
+          },
+          "opacity": {
+            "value": 0.3,
+            "random": true,
+            "anim": {
+              "enable": true,
+              "speed": 0.5,
+              "opacity_min": 0.1,
+              "sync": false
+            }
+          },
+          "size": {
+            "value": 10,
+            "random": true,
+            "anim": {
+              "enable": true,
+              "speed": 3,
+              "size_min": 1,
+              "sync": false
+            }
+          },
+          "line_linked": {
+            "enable": false
+          },
+          "move": {
+            "enable": true,
+            "speed": 1,
+            "direction": "none",
+            "random": true,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": false
+            },
+            "onclick": {
+              "enable": false
+            },
+            "resize": true
+          }
+        },
+        "retina_detect": true
+      });
+      
+      // 创建装饰性气泡
+      function createBubbles() {
+        const bubblesContainer = document.querySelector('.bubbles-container');
+        const bubbleCount = 8;
+        
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubble = document.createElement('div');
+          bubble.classList.add('bubble');
+          
+          const size = Math.random() * 100 + 50;
+          const left = Math.random() * 100;
+          const delay = Math.random() * 5;
+          
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          bubble.style.left = `${left}%`;
+          bubble.style.bottom = `-${size}px`;
+          bubble.style.animationDelay = `${delay}s`;
+          bubble.style.opacity = '0.05';
+          
+          bubblesContainer.appendChild(bubble);
+        }
+      }
+      
+      // 创建装饰点
+      function createDecorationDots() {
+        const container = document.querySelector('.decoration-container');
+        const dotCount = 12;
+        
+        for (let i = 0; i < dotCount; i++) {
+          const dot = document.createElement('div');
+          dot.classList.add('dot');
+          
+          const size = Math.random() * 150 + 50;
+          const x = Math.random() * 100;
+          const y = Math.random() * 100;
+          const opacity = Math.random() * 0.15 + 0.05;
+          
+          dot.style.width = `${size}px`;
+          dot.style.height = `${size}px`;
+          dot.style.left = `${x}%`;
+          dot.style.top = `${y}%`;
+          dot.style.opacity = opacity.toString();
+          
+          container.appendChild(dot);
+          
+          // 使用GSAP制作简单的呼吸动画
+          gsap.to(dot, {
+            scale: 1.2,
+            opacity: opacity - 0.02,
+            duration: 2 + Math.random() * 3,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+          });
+        }
+      }
+      
+      // 为波浪添加动画
+      document.head.insertAdjacentHTML('beforeend', `
+        <style>
+          @keyframes wave-animation {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1000px; }
+          }
+        </style>
+      `);
+      
+      createBubbles();
+      createDecorationDots();
+    });
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>
