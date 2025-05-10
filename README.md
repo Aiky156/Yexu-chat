@@ -152,7 +152,7 @@ yexu-chat/
 │   ├── js/             # JavaScript文件
 │   │   └── app.js      # 主应用逻辑
 │   └── index.html      # 主HTML文件
-├── uploads/            # 上传文件存储目录
+├── uploads/            # 上传文件存储目录（自动生成）
 ├── server.js           # 服务器入口文件
 ├── reset-password.js   # 管理员密码重置工具
 ├── package.json        # 项目配置和依赖
