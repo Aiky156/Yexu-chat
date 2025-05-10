@@ -37,6 +37,9 @@ Thumbs.db
 /uploads
 /public/uploads
 
+# 数据库文件
+/data/database.sqlite
+
 # 构建输出
 /dist
 /build

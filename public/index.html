@@ -115,7 +115,10 @@
         </div>
         <div class="user-info">
           <h3 id="username">未登录</h3>
-          <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
+          <div class="user-actions">
+            <button id="change-password-btn" class="btn-action"><i class="fas fa-key"></i> 修改密码</button>
+            <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> 退出登录</button>
+          </div>
         </div>
       </div>
       <div class="sidebar-content">
@@ -190,6 +193,33 @@
       </div>
     </div>
 
+    <!-- 修改密码模态框 -->
+    <div id="change-password-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>修改密码</h2>
+        <form id="change-password-form" action="javascript:void(0);" autocomplete="off" novalidate>
+          <div class="form-group">
+            <label for="current-password">当前密码</label>
+            <input type="password" id="current-password" placeholder="请输入当前密码" required>
+          </div>
+          <div class="form-group">
+            <label for="new-password">新密码</label>
+            <input type="password" id="new-password" placeholder="请输入新密码" required>
+          </div>
+          <div class="form-group">
+            <label for="confirm-new-password">确认新密码</label>
+            <input type="password" id="confirm-new-password" placeholder="请再次输入新密码" required>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="cancel-password-change" class="btn secondary-btn">取消</button>
+            <button type="submit" id="submit-password-change" class="btn primary-btn">确认修改</button>
+          </div>
+          <p id="change-password-error" class="error-message hidden"></p>
+          <p id="change-password-success" class="success-message hidden"></p>
+        </form>
+      </div>
+    </div>
+    
     <!-- 用户认证模态框 -->
     <div id="user-setup-modal" class="modal hidden">
       <div class="modal-content user-setup-content">
