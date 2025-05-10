@@ -345,7 +345,6 @@ function initSocketConnection() {
   // 监听消息撤回
   socket.on('message recalled', (data) => {
     const { messageId, userId } = data;
-    console.log('收到消息撤回事件:', { messageId, userId, isSelf: userId === currentUser.id });
     handleMessageRecall(messageId, userId);
   });
   
@@ -424,7 +423,6 @@ function updateOnlineUsersList(usersList) {
 function handleMessageRecall(messageId, userId) {
   const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
   if (messageElement) {
-    console.log('找到要撤回的消息元素:', messageId);
     const username = messageElement.querySelector('.message-sender').textContent;
     const recalledDiv = document.createElement('div');
     recalledDiv.className = 'message-recalled';
@@ -433,14 +431,6 @@ function handleMessageRecall(messageId, userId) {
     // 查找消息在聊天历史中的索引
     const messageIndex = chatHistory.findIndex(msg => msg.id === messageId);
     const messageData = messageIndex !== -1 ? chatHistory[messageIndex] : null;
-    
-    console.log('消息数据:', messageData ? {
-      type: messageData.type,
-      id: messageData.id,
-      userId: messageData.userId,
-      hasFileInfo: !!messageData.fileInfo,
-      hasFile: !!messageData.file
-    } : 'Not found in chat history');
     
     // 如果是当前用户撤回的消息
     if (userId === currentUser.id) {
@@ -454,7 +444,7 @@ function handleMessageRecall(messageId, userId) {
           originalText = messageData.text;
         } else if (messageData.type === 'file') {
           isFileMessage = true;
-          fileData = messageData.fileInfo || messageData.file;
+          fileData = messageData.file;
         }
       } else {
         const textElement = messageElement.querySelector('.message-text');
@@ -465,20 +455,14 @@ function handleMessageRecall(messageId, userId) {
       
       // 如果是文件消息，直接显示撤回提示，不提供重新编辑选项
       if (isFileMessage) {
-        recalledDiv.textContent = `你撤回了一条文件消息`;
-        
-        // 替换原消息元素
-        messageElement.parentNode.replaceChild(recalledDiv, messageElement);
+        recalledDiv.textContent = `你撤回了一条消息`;
         
         // 从聊天历史中删除消息并通知服务器删除文件
         if (messageIndex !== -1) {
-          const fileInfo = messageData.fileInfo || messageData.file || {};
-          // 通知服务器删除文件（虽然recallMessage函数已经通知过，但为了保险，这里再通知一次）
           socket.emit('delete file', {
-            fileId: fileInfo.filename,
-            filePath: fileInfo.path
+            fileId: chatHistory[messageIndex].file.id,
+            filePath: chatHistory[messageIndex].file.path
           });
-          
           // 从聊天历史中删除
           chatHistory.splice(messageIndex, 1);
         }
@@ -551,10 +535,7 @@ function handleMessageRecall(messageId, userId) {
             countdownSpan.textContent = `(${countdown}s)`;
           }
         }, 1000);
-        
-        // 替换原消息
-        messageElement.parentNode.replaceChild(recalledDiv, messageElement);
-      }
+      } // 文本消息处理结束
     } else {
       // 其他用户撤回的消息
       recalledDiv.textContent = `${username} 撤回了一条消息`;
@@ -563,12 +544,10 @@ function handleMessageRecall(messageId, userId) {
       if (messageIndex !== -1) {
         chatHistory.splice(messageIndex, 1);
       }
-      
-      // 替换原消息
-      messageElement.parentNode.replaceChild(recalledDiv, messageElement);
     }
-  } else {
-    console.error('未找到要撤回的消息元素:', messageId);
+    
+    // 替换原消息
+    messageElement.parentNode.replaceChild(recalledDiv, messageElement);
   }
 }
 
@@ -608,11 +587,9 @@ function recallMessage(messageId) {
     };
     
     // 如果是文件消息，添加文件信息
-    if (messageData && messageData.type === 'file') {
-      // 兼容性处理：如果消息使用旧格式(file字段)，则尝试从file字段获取信息
-      const fileInfo = messageData.fileInfo || messageData.file || {};
-      const filePathInfo = fileInfo.path || '';
-      const filename = fileInfo.filename || '';
+    if (messageData && messageData.type === 'file' && messageData.file) {
+      const filePathInfo = messageData.file.path || '';
+      const filename = messageData.file.filename || '';
       
       console.log('检测到文件消息撤回:', { 
         path: filePathInfo, 
@@ -620,13 +597,13 @@ function recallMessage(messageId) {
       });
       
       recallData.fileInfo = {
-        fileId: filename,
+        fileId: messageData.file.filename,
         filePath: filePathInfo
       };
       
       // 同时发送删除文件请求
       socket.emit('delete file', {
-        fileId: filename,
+        fileId: messageData.file.filename,
         filePath: filePathInfo
       });
     }
@@ -741,7 +718,7 @@ function initEmojiPicker() {
       // 选择后立即隐藏选择器
       emojiPicker.classList.add('hidden');
     });
-  
+    
     // 移除之前的事件监听以避免重复
     emojiBtn.removeEventListener('click', toggleEmojiPicker);
     document.removeEventListener('click', hideEmojiPickerOnClickOutside);
@@ -797,21 +774,21 @@ function adjustEmojiPickerPosition() {
 
 // 切换表情选择器显示/隐藏
 function toggleEmojiPicker(e) {
-    e.stopPropagation(); // 阻止事件冒泡
+  e.stopPropagation(); // 阻止事件冒泡
   
   // 如果当前是隐藏状态，则在显示前调整位置
   if (emojiPicker.classList.contains('hidden')) {
     adjustEmojiPickerPosition();
   }
   
-    emojiPicker.classList.toggle('hidden');
+  emojiPicker.classList.toggle('hidden');
 }
-  
-  // 点击其他地方关闭表情选择器
+
+// 点击其他地方关闭表情选择器
 function hideEmojiPickerOnClickOutside(e) {
-    if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-      emojiPicker.classList.add('hidden');
-    }
+  if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+    emojiPicker.classList.add('hidden');
+  }
 }
 
 // 初始化引用回复功能
@@ -860,18 +837,17 @@ function addSystemMessage(text) {
 
 // 添加消息到UI
 function addMessageToUI(msg) {
-  // 如果是文件消息，确保fileInfo对象包含有效信息
-  if (msg.type === 'file') {
-    // 兼容性处理：如果消息使用旧格式(file字段)，则转换为新格式(fileInfo字段)
-    if (msg.file && !msg.fileInfo) {
-      msg.fileInfo = msg.file;
+  // 如果是文件消息，确保file对象包含有效信息
+  if (msg.type === 'file' && msg.file) {
+    // 确保file对象包含path和filename属性
+    if (!msg.file.path && msg.file.url) {
+      msg.file.path = msg.file.url;
+    }
+    if (!msg.file.filename && msg.file.name) {
+      msg.file.filename = msg.file.name;
     }
     
-    // 如果fileInfo无效，则跳过显示
-    if (!msg.fileInfo) {
-      console.error('无效的文件消息:', msg);
-      return;
-    }
+    console.log('收到文件消息:', msg.file);
   }
   
   // 如果消息已被撤回，显示撤回提示
@@ -957,26 +933,26 @@ function addMessageToUI(msg) {
     fileMessageDiv.className = 'file-message';
     
     // 根据文件类型处理预览
-    if (msg.fileInfo.mimetype.startsWith('image/')) {
+    if (msg.file.mimetype.startsWith('image/')) {
       // 图片预览
       const imgPreview = document.createElement('img');
       imgPreview.className = 'media-preview';
-      imgPreview.src = msg.fileInfo.path;
-      imgPreview.alt = msg.fileInfo.originalname;
-      imgPreview.addEventListener('click', () => openMediaPreview(msg.fileInfo));
+      imgPreview.src = msg.file.path;
+      imgPreview.alt = msg.file.originalname;
+      imgPreview.addEventListener('click', () => openMediaPreview(msg.file));
       fileMessageDiv.appendChild(imgPreview);
-    } else if (msg.fileInfo.mimetype.startsWith('video/')) {
+    } else if (msg.file.mimetype.startsWith('video/')) {
       // 视频预览
       const videoPreview = document.createElement('video');
       videoPreview.className = 'media-preview';
-      videoPreview.src = msg.fileInfo.path;
+      videoPreview.src = msg.file.path;
       videoPreview.controls = true;
       fileMessageDiv.appendChild(videoPreview);
-    } else if (msg.fileInfo.mimetype.startsWith('audio/')) {
+    } else if (msg.file.mimetype.startsWith('audio/')) {
       // 音频预览
       const audioPreview = document.createElement('audio');
       audioPreview.className = 'audio-preview';
-      audioPreview.src = msg.fileInfo.path;
+      audioPreview.src = msg.file.path;
       audioPreview.controls = true;
       fileMessageDiv.appendChild(audioPreview);
     }
@@ -984,11 +960,11 @@ function addMessageToUI(msg) {
     // 文件信息
     const fileInfo = document.createElement('div');
     fileInfo.className = 'file-info';
-    fileInfo.addEventListener('click', () => openMediaPreview(msg.fileInfo));
+    fileInfo.addEventListener('click', () => openMediaPreview(msg.file));
     
     // 文件图标
     const fileIcon = document.createElement('i');
-    fileIcon.className = getFileIcon(msg.fileInfo.mimetype);
+    fileIcon.className = getFileIcon(msg.file.mimetype);
     fileIcon.classList.add('file-icon');
     fileInfo.appendChild(fileIcon);
     
@@ -998,12 +974,12 @@ function addMessageToUI(msg) {
     
     const fileName = document.createElement('div');
     fileName.className = 'file-name';
-    fileName.textContent = msg.fileInfo.originalname;
+    fileName.textContent = msg.file.originalname;
     fileDetails.appendChild(fileName);
     
     const fileSize = document.createElement('div');
     fileSize.className = 'file-size';
-    fileSize.textContent = formatFileSize(msg.fileInfo.size);
+    fileSize.textContent = formatFileSize(msg.file.size);
     fileDetails.appendChild(fileSize);
     
     fileInfo.appendChild(fileDetails);
@@ -1196,7 +1172,7 @@ async function sendFile() {
     
     const message = {
       type: 'file',
-      fileInfo: fileInfo,
+      file: fileInfo,
       userId: currentUser.id,
       username: currentUser.username,
       avatar: currentUser.avatar,
@@ -1369,107 +1345,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 移除文件
   removeFileBtn.addEventListener('click', clearFileSelection);
-  
-  // 修改密码按钮事件
-  const changePasswordBtn = document.getElementById('change-password-btn');
-  const changePasswordModal = document.getElementById('change-password-modal');
-  const cancelPasswordChange = document.getElementById('cancel-password-change');
-  const submitPasswordChange = document.getElementById('submit-password-change');
-  const currentPasswordInput = document.getElementById('current-password');
-  const newPasswordInput = document.getElementById('new-password');
-  const confirmNewPasswordInput = document.getElementById('confirm-new-password');
-  const changePasswordError = document.getElementById('change-password-error');
-  const changePasswordSuccess = document.getElementById('change-password-success');
-  
-  // 打开修改密码模态框
-  changePasswordBtn.addEventListener('click', () => {
-    // 重置表单
-    currentPasswordInput.value = '';
-    newPasswordInput.value = '';
-    confirmNewPasswordInput.value = '';
-    changePasswordError.classList.add('hidden');
-    changePasswordSuccess.classList.add('hidden');
-    
-    // 显示模态框
-    changePasswordModal.classList.remove('hidden');
-  });
-  
-  // 取消修改密码
-  cancelPasswordChange.addEventListener('click', () => {
-    changePasswordModal.classList.add('hidden');
-  });
-  
-  // 提交修改密码
-  submitPasswordChange.addEventListener('click', async () => {
-    // 获取输入值
-    const currentPassword = currentPasswordInput.value.trim();
-    const newPassword = newPasswordInput.value.trim();
-    const confirmNewPassword = confirmNewPasswordInput.value.trim();
-    
-    // 验证输入
-    if (!currentPassword) {
-      changePasswordError.textContent = '请输入当前密码';
-      changePasswordError.classList.remove('hidden');
-      return;
-    }
-    
-    if (!newPassword) {
-      changePasswordError.textContent = '请输入新密码';
-      changePasswordError.classList.remove('hidden');
-      return;
-    }
-    
-    if (newPassword.length < 6) {
-      changePasswordError.textContent = '新密码长度必须至少为6个字符';
-      changePasswordError.classList.remove('hidden');
-      return;
-    }
-    
-    if (newPassword !== confirmNewPassword) {
-      changePasswordError.textContent = '两次输入的新密码不一致';
-      changePasswordError.classList.remove('hidden');
-      return;
-    }
-    
-    try {
-      // 发送修改密码请求
-      const response = await fetch('/api/auth/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userId: currentUser.id,
-          currentPassword,
-          newPassword
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // 修改成功
-        changePasswordSuccess.textContent = '密码修改成功';
-        changePasswordSuccess.classList.remove('hidden');
-        changePasswordError.classList.add('hidden');
-        
-        // 3秒后关闭模态框
-        setTimeout(() => {
-          changePasswordModal.classList.add('hidden');
-        }, 3000);
-      } else {
-        // 修改失败
-        changePasswordError.textContent = data.message || '密码修改失败';
-        changePasswordError.classList.remove('hidden');
-        changePasswordSuccess.classList.add('hidden');
-      }
-    } catch (error) {
-      console.error('修改密码错误:', error);
-      changePasswordError.textContent = '服务器错误，请稍后再试';
-      changePasswordError.classList.remove('hidden');
-      changePasswordSuccess.classList.add('hidden');
-    }
-  });
   
   // 侧边栏切换
   toggleSidebarBtn.addEventListener('click', () => {

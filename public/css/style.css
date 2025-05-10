@@ -225,27 +225,22 @@ html, body {
 .btn-logout {
   background-color: transparent;
   color: var(--danger-color);
-  border: 1px solid rgba(255, 140, 158, 0.3);
-  border-radius: 20px;
+  border: none;
   font-size: var(--font-size-xs);
-  padding: 8px 14px;
+  padding: 2px 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 5px;
   transition: var(--transition);
   opacity: 0.8;
-  width: 100%;
-  max-width: 140px;
+  margin-top: 4px;
 }
 
 .btn-logout:hover {
   color: var(--danger-color);
   opacity: 1;
-  background-color: rgba(255, 140, 158, 0.05);
-  border-color: rgba(255, 140, 158, 0.5);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .sidebar-content {
@@ -1242,14 +1237,14 @@ html, body {
     font-size: 20px;
     padding: 8px;
     border-radius: 50%;
-  transition: var(--transition);
-}
-
+    transition: var(--transition);
+  }
+  
   .toggle-btn:hover {
     background-color: var(--primary-light);
     color: var(--primary-dark);
-}
-
+  }
+  
   .message {
     max-width: 90%;
   }
@@ -1263,9 +1258,9 @@ html, body {
   }
   
   .media-preview {
-  max-width: 200px;
-}
-
+    max-width: 200px;
+  }
+  
   .modal {
     align-items: flex-start;
     padding: 10px 0 30px;
@@ -1298,8 +1293,8 @@ html, body {
   
   .auth-tab {
     padding: 12px 0;
-}
-
+  }
+  
   /* 确保按钮足够大，易于触摸 */
   .btn, 
   .primary-btn {
@@ -1316,8 +1311,8 @@ html, body {
   /* 防止表单内容溢出 */
   .auth-form {
     overflow-x: hidden;
-}
-
+  }
+  
   .current-avatar::after {
     opacity: 0.3; /* 在移动设备上始终显示一点提示 */
   }
@@ -1342,8 +1337,8 @@ html, body {
   .media-preview {
     max-width: 180px;
     max-height: 150px;
-}
-
+  }
+  
   /* 改进输入区域，使用弹性布局适应不同视口高度 */
   .app-container {
     padding-bottom: 80px; /* 为固定定位的输入框预留空间 */
@@ -1358,7 +1353,7 @@ html, body {
     background-color: var(--paper-color);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     z-index: 50;
-  display: flex;
+    display: flex;
     flex-direction: column;
     max-height: 40vh; /* 最大高度不超过视口的40% */
   }
@@ -1366,17 +1361,17 @@ html, body {
   .chat-container {
     padding-bottom: 10px;
     margin-bottom: 70px; /* 确保不被输入框遮挡 */
-}
-
-#message-input {
+  }
+  
+  #message-input {
     padding: 8px 12px;
     font-size: var(--font-size-sm);
     max-height: 80px; /* 限制高度 */
     overflow-y: auto;
     line-height: 1.4;
-}
-
-#send-btn {
+  }
+  
+  #send-btn {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
@@ -1384,8 +1379,8 @@ html, body {
   
   .message-input-container {
     padding: 3px;
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
     min-height: 44px; /* 保证按钮可点击尺寸 */
   }
   
@@ -1436,8 +1431,8 @@ html, body {
     width: 95%;
     padding: 20px 15px;
     max-height: none;
-}
-
+  }
+  
   .auth-form {
     padding-bottom: 20px;
   }
@@ -1881,8 +1876,8 @@ html, body {
 #users-list .user-avatar-small:hover {
   transform: scale(1.15);
   border-color: var(--primary-color);
-  }
-  
+}
+
 .online-avatars-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1906,8 +1901,8 @@ html, body {
   bottom: 0;
   background: linear-gradient(135deg, rgba(255, 159, 182, 0.05), rgba(91, 155, 213, 0.03));
   z-index: -1;
-  }
-  
+}
+
 .online-avatar-container {
   position: relative;
   }
@@ -2169,57 +2164,4 @@ html, body {
     max-height: 50vh;
     bottom: 50px;
   }
-}
-
-/* 用户操作按钮 */
-.user-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-/* 修改密码按钮样式 */
-.btn-action {
-  background: linear-gradient(135deg, #5b9bd5 10%, #ff9fb6 90%);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 14px;
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(91, 155, 213, 0.25);
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  width: 100%;
-  max-width: 140px;
-}
-
-.btn-action::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #ff9fb6 10%, #5b9bd5 90%);
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-}
-
-.btn-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(91, 155, 213, 0.35);
-}
-
-.btn-action:hover::before {
-  opacity: 1;
 }
